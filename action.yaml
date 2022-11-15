@@ -16,10 +16,6 @@ inputs:
     description: |-
       GCP project.
     required: true
-  source_bucket_name:
-    description: |-
-      Source artifact Bucket name to sync data with.
-    required: true
   bucket_name:
     description: |-
       Bucket name to sync data with.
