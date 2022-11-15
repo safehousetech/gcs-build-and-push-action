@@ -78,8 +78,9 @@ runs:
     - id: 'upload-file'
       uses: 'google-github-actions/upload-cloud-storage@v0'
       with:
-        path: ${{ inputs.source_bucket_name }}
+        path: ./build/
         destination: ${{ inputs.bucket_name }}
         predefinedAcl: publicRead
+        parent: false
         headers: "x-goog-meta-Cache-Control: public, max-age=86400"
 
