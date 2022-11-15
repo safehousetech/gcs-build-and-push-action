@@ -1,0 +1,70 @@
+name: "Build and Push to GCS"
+author: "SafeHouse Tech."
+description: |-
+  An action to build and sync to GCS.
+inputs:
+  build_arguments:
+    description: |-
+      Arguments required during the build phase.
+      TODO: fill the list of required variable names.
+    required: false
+  credentials_json:
+    description: |-
+      Credential file for GCP authentication.
+    required: true
+  bucket_name:
+    description: |-
+      Bucket name to sync data with.
+    required: true
+  build_environment:
+    description: |-
+      Environment on which service needs to be publish
+    default: development
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+          node-version: 18
+    - uses: pnpm/action-setup@v2.2.4
+      name: Install pnpm
+      id: pnpm-install
+      with:
+          version: 7
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+    - uses: actions/cache@v3
+      name: Setup pnpm cache
+      with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-store-
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install
+    - name: Build
+      shell: bash
+      run: |-
+          if [[ ${{ inputs.build_environment }} == production ]]; then
+            pnpm run build:prod
+            pnpm run artifacts:prod
+          else
+            pnpm run build:dev
+            pnpm run artifacts:dev
+          fi         
+    - id: 'upload-file'
+      uses: 'google-github-actions/upload-cloud-storage@v0'
+      with:
+        path: './'
+        destination: ${{ inputs.bucket_name }}
+        predefinedAcl: publicRead
+        headers: |-
+                Cache-Control:public
+                max-age=86400
+
