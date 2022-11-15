@@ -81,5 +81,5 @@ runs:
         path: ${{ inputs.source_bucket_name }}
         destination: ${{ inputs.bucket_name }}
         predefinedAcl: publicRead
-        headers: "Cache-Control:public, max-age=86400"
+        headers: "Cache-Control: public, max-age=86400"
 
