@@ -78,6 +78,5 @@ runs:
         destination: ${{ inputs.bucket_name }}
         predefinedAcl: publicRead
         headers: |-
-                Cache-Control:public
-                max-age=86400
+                Cache-Control:public, max-age=86400
 
